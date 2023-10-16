@@ -41,6 +41,7 @@ class GtpConnection:
         board: 
             Represents the current board state.
         """
+        self.timelimit = 1
         self._debug_mode: bool = debug_mode
         self.go_engine = go_engine
         self.board: GoBoard = board
@@ -295,13 +296,17 @@ class GtpConnection:
 
         if (result1 == BLACK) or (result2 == BLACK):
             self.respond("black")
+            gamestate=1
         elif (result1 == WHITE) or (result2 == WHITE):
             self.respond("white")
+            gamestate=2
         elif self.board.get_empty_points().size == 0:
             self.respond("draw")
+            gamestate=3
         else:
             self.respond("unknown")
-        return
+            gamestate=4
+        return gamestate
 
     def gogui_rules_legal_moves_cmd(self, args: List[str]) -> None:
         """ We already implemented this function for Assignment 2 """
@@ -383,7 +388,8 @@ class GtpConnection:
     
     def timelimit_cmd(self, args: List[str]) -> None:
         """ Implement this function for Assignment 2 """
-        pass
+        self.timelimit = args[0]
+        self.respond('')
 
     def solve_cmd(self, args: List[str]) -> None:
         """ Implement this function for Assignment 2 """
