@@ -13,7 +13,7 @@ The board uses a 1-dimensional representation with padding
 
 import numpy as np
 from typing import List, Tuple
-# import alphabeta_search
+import alphabeta_search
 from board_base import (
     board_array_size,
     coord_to_point,
@@ -393,6 +393,24 @@ class GoBoard(object):
             if counter == 5 and prev != EMPTY:
                 return prev
         return EMPTY
+    
+    def solve(self):
+        result, move, draw_Move = alphabeta_search.solve(self)
+        if move=="First":
+            if result==0:
+                return 'draw',draw_Move
+            else:
+                winner='w' if self.current_player!=WHITE else 'b'
+                return winner,'NoMove'
+        elif move=="NoMove":
+            if result:
+                return 'draw', draw_Move
+            else:
+                winner='w' if self.current_player!=WHITE else 'b'
+                return winner, move
+        else:
+            winner='w' if self.current_player==WHITE else 'b'
+            return winner, move
     
     def check_pattern(self,point,have,direction_x,direction_y,moveSet,patternList,color,flag):
         for i in range(0,4):

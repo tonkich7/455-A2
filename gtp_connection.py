@@ -28,6 +28,7 @@ from board_base import (
 from board import GoBoard
 from board_util import GoBoardUtil
 from engine import GoEngine
+import signal
 
 class GtpConnection:
     def __init__(self, go_engine: GoEngine, board: GoBoard, debug_mode: bool = False) -> None:
@@ -42,6 +43,7 @@ class GtpConnection:
             Represents the current board state.
         """
         self.timelimit = 1
+        signal.signal(signal.SIGALRM, self.handler)
         self._debug_mode: bool = debug_mode
         self.go_engine = go_engine
         self.board: GoBoard = board
@@ -361,6 +363,9 @@ class GtpConnection:
     Assignment 2 - game-specific commands you have to implement or modify
     ==========================================================================
     """
+    def handler(self, signum, fram):
+        self.board = self.sboard
+        raise Exception("unknown")
 
     def genmove_cmd(self, args: List[str]) -> None:
         """ 
@@ -393,7 +398,21 @@ class GtpConnection:
 
     def solve_cmd(self, args: List[str]) -> None:
         """ Implement this function for Assignment 2 """
-        pass
+        try:
+            self.sboard = self.board.copy()
+            #signal.alarm(int(self.timelimit)-1)
+            winner,move = self.board.solve()
+            self.board = self.sboard
+            #signal.alarm(0)
+            if move != "NoMove":
+                if move == None:
+                    self.respond('{} {}'.format(winner, self.board._point_to_coord(move)))
+                    return 
+                self.respond('{} {}'.format(winner, format_point(point_to_coord(move, self.board.size))))
+                return 
+            self.respond('{}'.format(winner))
+        except Exception as e:
+            self.respond('{}'.format(str(e)))
 
     """
     ==========================================================================
