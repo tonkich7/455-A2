@@ -31,7 +31,7 @@ def alphabeta(board,alpha,beta):
     result=game_end(board)
     if (result!=None):
         return result
-    solvePoint=board.list_solve_point()
+    solvePoint=board.list_solving_points()
     if solvePoint:
         board.play_move(solvePoint[0],board.current_player)
         result=-alphabeta(board,-beta,-alpha)
@@ -42,7 +42,7 @@ def alphabeta(board,alpha,beta):
             return beta
     else:
         for m in GoBoardUtil.generate_legal_moves(board):
-            board.play_move_gomoku(m,board.current_player)
+            board.play_move(m,board.current_player)
             result=-alphabeta(board,-beta,-alpha)
             if(result>alpha):
                 alpha=result
@@ -58,7 +58,7 @@ def solve(board):
         return result,"First"
     alpha,beta=-1,1
     haveDraw=False
-    solvePoint=board.list_solve_point()
+    solvePoint=board.list_solving_points()
     if solvePoint:
         board.play_move(solvePoint[0],board.current_player)
         result=-alphabeta(board,-beta,-alpha)

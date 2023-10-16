@@ -393,3 +393,58 @@ class GoBoard(object):
             if counter == 5 and prev != EMPTY:
                 return prev
         return EMPTY
+    
+    def check_pattern(self,point,have,direction_x,direction_y,moveSet,patternList,color,flag):
+        for i in range(0,4):
+            if have in patternList[i]:
+                for dis in patternList[i][have]:
+                    moveSet[i].add(point-direction_x*(dis+1)-direction_y*self.NS*(dis+1))
+                break
+        if (not (0<= point<len(self.board))) or len(have)==9:
+            return
+        piece=self.get_color(point)
+        if piece==EMPTY:
+            piece='.'
+        elif piece==color:
+            piece='x'
+        elif piece == BORDER:
+            piece='B'
+        else:
+            piece='o'
+        have+=piece
+        self.check_pattern(point+direction_x+direction_y*self.NS,have,direction_x,direction_y,moveSet,patternList,color,flag)
+
+    def list_solving_points(self):
+        """
+        This func will detect:
+        1. direct winning point xxxx. x.xxx xx.xx--connect4
+        2. urgent blocking point xoooo. block open 4
+        3. points that will win in 2 steps
+        """
+        moveSet=[set(),set(),set(),set()]
+        color=self.current_player
+
+        patternList=[{'xxxx.':{0},'xxx.x':{1},'xx.xx':{2},'x.xxx':{3},'.xxxx':{4}}, #win
+                     {'oooo.':{0},'ooo.o':{1},'oo.oo':{2},'o.ooo':{3},'.oooo':{4}}, #block win
+                     {'.xxx..':{1},'..xxx.':{4},'.xx.x.':{2},'.x.xx.':{3}}, #make-connect4
+                     {'.ooo..':{1,5},'..ooo.':{0,4},'.oo.o.':{0,2,5},'.o.oo.':{0,3,5}, 'B.ooo..':{0}, '..ooo.B':{6},
+                     'x.ooo..':{0}, '..ooo.x':{6} #more block patterns
+                     }]
+
+        direction_x=[1,0,1,-1]
+        direction_y=[0,1,1,1]
+        flag=[False]
+
+        for point in range(0, len(self.board)):
+            if flag[0]:
+                break
+            for direction in range(0,4):
+                    self.check_pattern(point,'',direction_x[direction],direction_y[direction],moveSet,patternList,color,flag)
+        
+        i=0
+        while i<4 and not bool(moveSet[i]): i+=1
+        if i==4:
+            return None
+        else:
+            return i, list(moveSet[i])
+            
